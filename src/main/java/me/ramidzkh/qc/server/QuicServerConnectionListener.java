@@ -1,16 +1,14 @@
 package me.ramidzkh.qc.server;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelPipeline;
+import io.netty.channel.*;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollDatagramChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.incubator.codec.quic.QuicServerCodecBuilder;
 import io.netty.incubator.codec.quic.QuicSslContextBuilder;
 import me.ramidzkh.qc.QuicConnect;
+import me.ramidzkh.qc.mixin.ConnectionAccessor;
 import me.ramidzkh.qc.token.KeyedTokenHandler;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.Util;
@@ -60,6 +58,7 @@ public class QuicServerConnectionListener {
                         int pps = server.getRateLimitPacketsPerSecond();
                         Connection connection = pps > 0 ? new RateKickingConnection(pps)
                                 : new Connection(PacketFlow.SERVERBOUND);
+                        ((ConnectionAccessor) connection).setEncrypted(true);
                         connections.add(connection);
                         pipeline.addLast("packet_handler", connection);
                         connection.setListener(new ServerHandshakePacketListenerImpl(server, connection));

@@ -11,6 +11,7 @@ import io.netty.incubator.codec.quic.QuicClientCodecBuilder;
 import io.netty.incubator.codec.quic.QuicSslContextBuilder;
 import io.netty.incubator.codec.quic.QuicStreamType;
 import me.ramidzkh.qc.QuicConnect;
+import me.ramidzkh.qc.mixin.ConnectionAccessor;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.PacketFlow;
 import org.jetbrains.annotations.NotNull;
@@ -61,6 +62,7 @@ public class QuicConnection {
                 .createStream(QuicStreamType.BIDIRECTIONAL, new ChannelInitializer<>() {
                     @Override
                     protected void initChannel(@NotNull Channel channel) {
+                        ((ConnectionAccessor) connection).setEncrypted(true);
                         ChannelPipeline pipeline = channel.pipeline();
                         Connection.configureSerialization(pipeline, PacketFlow.CLIENTBOUND);
                         pipeline.addLast("packet_handler", connection);
