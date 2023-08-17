@@ -1,0 +1,120 @@
+plugins {
+    id("fabric-loom") version "1.3-SNAPSHOT"
+    id("com.matthewprenger.cursegradle") version "1.4.0"
+    id("com.diffplug.spotless") version "6.20.0"
+    id("com.modrinth.minotaur") version "2.8.3"
+}
+
+group = "me.ramidzkh"
+version = System.getenv("QC_VERSION") ?: "0.0.0"
+
+dependencies {
+    minecraft("net.minecraft:minecraft:${minecraft_version}")
+    mappings(loom.officialMojangMappings())
+    modImplementation("net.fabricmc:fabric-loader:${loader_version}")
+
+    implementation("io.netty.incubator:netty-incubator-codec-classes-quic:0.0.49.Final")
+    runtimeOnly("io.netty.incubator:netty-incubator-codec-native-quic:0.0.49.Final:linux-x86_64")
+
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.0")
+
+    testImplementation("com.google.code.gson:gson:2.10.1")
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}
+
+test {
+    useJUnitPlatform()
+}
+
+processResources {
+    inputs.property("version", project.version)
+
+    from("LICENSE")
+
+    filesMatching("fabric.mod.json") {
+        expand("version": project.version)
+    }
+}
+
+/////////////
+// Spotless
+spotless {
+    java {
+        target("src/*/java/**/*.java")
+
+        endWithNewline()
+        indentWithSpaces()
+        removeUnusedImports()
+        toggleOffOn()
+        eclipse().configFile("codeformat/codeformat.xml")
+    }
+
+    format("json") {
+        target("src/main/resources/**/*.json")
+        prettier().config(parser: "json")
+    }
+}
+
+////////////////
+// CurseForge
+System.getenv("CURSEFORGE")?.with { String key ->
+    curseforge {
+        apiKey = key
+
+        project {
+            id = ""
+            changelogType = "markdown"
+            changelog = "View changelog at [the release page](https://github.com/ramidzkh/quic-connect/releases/tag/${version})"
+
+            if (version.contains("alpha")) {
+                releaseType = "alpha"
+            } else if (version.contains("beta")) {
+                releaseType = "beta"
+            } else {
+                releaseType = "release"
+            }
+
+            addGameVersion("${minecraft_version}")
+            addGameVersion("Fabric")
+
+            mainArtifact(remapJar) {
+                displayName = "${project.version} [FABRIC]"
+            }
+        }
+    }
+}
+
+////////////////
+// Modrinth
+modrinth {
+    token.set(System.getenv("MODRINTH"))
+    projectId.set("quic-connect")
+    changelog.set("View changelog at [the release page](https://github.com/ramidzkh/quic-connect/releases/tag/${version})")
+    versionNumber.set("${project.version}-fabric")
+    versionName.set("${project.version} [FABRIC]")
+
+    if (version.contains("alpha")) {
+        versionType.set("alpha")
+    } else if (version.contains("beta")) {
+        versionType.set("beta")
+    } else {
+        versionType.set("release")
+    }
+
+    uploadFile.set(remapJar)
+    gameVersions.add(minecraft_version)
+}
+
+tasks.modrinth.onlyIf {
+    System.getenv("MODRINTH")
+}

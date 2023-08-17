@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "quic-connect",
+  "version": "${version}",
+  "mixins": ["quic-connect.mixins.json"],
+  "depends": {
+    "minecraft": ">=1.19.4"
+  },
+  "name": "Quic Connect",
+  "description": "Connect to Minecraft servers using QUIC",
+  "icon": "logo.png",
+  "authors": ["ramidzkh"],
+  "license": ["LGPL-3.0-or-later"],
+  "contact": {
+    "homepage": "https://github.com/ramidzkh/quic-connect#readme",
+    "issues": "https://github.com/ramidzkh/quic-connect/issues",
+    "sources": "https://github.com/ramidzkh/quic-connect"
+  }
+}
