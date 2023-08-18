@@ -16,6 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.concurrent.ExecutionException;
 
 @Mixin(Connection.class)
@@ -37,6 +38,10 @@ public class ConnectionMixin {
                 callbackInfoReturnable.setReturnValue(QuicConnection.connect(address, useNativeTransport, connection));
             }
         }
+    }
+
+    @Redirect(method = "channelActive", at = @At(value = "FIELD", target = "Lnet/minecraft/network/Connection;address:Ljava/net/SocketAddress;"))
+    private void dropSetAddress(Connection instance, SocketAddress value) {
     }
 
     @Redirect(method = "disconnect", at = @At(value = "FIELD", target = "Lnet/minecraft/network/Connection;channel:Lio/netty/channel/Channel;"))

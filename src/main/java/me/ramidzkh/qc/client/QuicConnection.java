@@ -24,7 +24,7 @@ public class QuicConnection {
 
     public static ChannelFuture connect(InetSocketAddress address, boolean useNativeTransport, Connection connection)
             throws ExecutionException, InterruptedException {
-        useNativeTransport &= Epoll.isAvailable();
+        useNativeTransport &= false && Epoll.isAvailable();
 
         var context = QuicSslContextBuilder.forClient()
                 .trustManager(InsecureTrustManagerFactory.INSTANCE)
@@ -33,7 +33,7 @@ public class QuicConnection {
 
         var codec = new QuicClientCodecBuilder()
                 .sslContext(context)
-                .maxIdleTimeout(5 /* 30 */, TimeUnit.SECONDS)
+                .maxIdleTimeout(QuicConnect.IDLE_TIMEOUT_SECONDS, TimeUnit.SECONDS)
                 .initialMaxData(10000000)
                 // As we don't want to support remote initiated streams just setup the limit for local initiated streams
                 .initialMaxStreamDataBidirectionalLocal(1000000)
@@ -63,7 +63,7 @@ public class QuicConnection {
                     @Override
                     protected void initChannel(@NotNull Channel channel) {
                         ((ConnectionAccessor) connection).setEncrypted(true);
-                        ChannelPipeline pipeline = channel.pipeline();
+                        var pipeline = channel.pipeline();
                         Connection.configureSerialization(pipeline, PacketFlow.CLIENTBOUND);
                         pipeline.addLast("packet_handler", connection);
                     }

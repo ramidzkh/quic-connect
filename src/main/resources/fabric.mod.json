@@ -4,7 +4,7 @@
   "version": "${version}",
   "mixins": ["quic-connect.mixins.json"],
   "depends": {
-    "minecraft": ">=1.19.4"
+    "minecraft": ">=1.20.1"
   },
   "name": "Quic Connect",
   "description": "Connect to Minecraft servers using QUIC",

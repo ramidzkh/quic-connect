@@ -42,7 +42,7 @@ public abstract class DedicatedServerMixin extends MinecraftServer {
 
     @Inject(method = "initServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerConnectionListener;startTcpServerListener(Ljava/net/InetAddress;I)V", shift = At.Shift.AFTER))
     private void openQuic(CallbackInfoReturnable<Boolean> callbackInfoReturnable) throws IOException {
-        int port = ((ExtraServerProperties) getProperties()).getQuicPort();
+        var port = ((ExtraServerProperties) getProperties()).getQuicPort();
 
         if (port != -1) {
             LOGGER.info("Starting Quic bind on {}:{}", getLocalIp().isEmpty() ? "*" : getLocalIp(), port);
