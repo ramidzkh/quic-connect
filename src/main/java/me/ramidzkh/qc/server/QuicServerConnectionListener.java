@@ -11,6 +11,7 @@ import io.netty.incubator.codec.quic.QuicServerCodecBuilder;
 import io.netty.incubator.codec.quic.QuicSslContextBuilder;
 import me.ramidzkh.qc.QuicConnect;
 import me.ramidzkh.qc.mixin.ConnectionAccessor;
+import me.ramidzkh.qc.token.KeyedConnectionIdGenerator;
 import me.ramidzkh.qc.token.KeyedTokenHandler;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.Util;
@@ -26,9 +27,9 @@ import org.slf4j.Logger;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.security.SecureRandom;
 import java.util.List;
 import java.util.WeakHashMap;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 public class QuicServerConnectionListener {
@@ -58,7 +59,9 @@ public class QuicServerConnectionListener {
                 .initialMaxStreamDataBidirectionalRemote(1000000)
                 .initialMaxStreamsBidirectional(100)
                 .initialMaxStreamsUnidirectional(100)
-                .tokenHandler(new KeyedTokenHandler(Util.make(new byte[32], ThreadLocalRandom.current()::nextBytes)))
+                .tokenHandler(new KeyedTokenHandler(Util.make(new byte[32], new SecureRandom()::nextBytes)))
+                .connectionIdAddressGenerator(
+                        new KeyedConnectionIdGenerator(Util.make(new byte[32], new SecureRandom()::nextBytes)))
                 .handler(new ChannelInboundHandlerAdapter() {
                     @Override
                     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) {
@@ -70,7 +73,7 @@ public class QuicServerConnectionListener {
                                 var currentAddress = connection.getRemoteAddress();
                                 var accessor = (ConnectionAccessor) connection;
 
-                                if (currentAddress.equals(newAddress)
+                                if (!newAddress.equals(currentAddress)
                                         && accessor.getChannel().parent() == ctx.channel()) {
                                     accessor.setAddress(newAddress);
                                     LOGGER.info("{}[{}] was migrated to {}", connection, currentAddress, newAddress);

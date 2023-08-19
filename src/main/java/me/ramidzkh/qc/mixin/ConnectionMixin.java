@@ -2,6 +2,7 @@ package me.ramidzkh.qc.mixin;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
+import io.netty.incubator.codec.quic.QuicStreamAddress;
 import io.netty.incubator.codec.quic.QuicStreamChannel;
 import me.ramidzkh.qc.client.QuicConnection;
 import me.ramidzkh.qc.client.QuicSocketAddress;
@@ -26,6 +27,9 @@ public class ConnectionMixin {
     private Channel channel;
 
     @Shadow
+    private SocketAddress address;
+
+    @Shadow
     private boolean encrypted;
 
     @Inject(method = "connect", at = @At("HEAD"), cancellable = true)
@@ -41,7 +45,10 @@ public class ConnectionMixin {
     }
 
     @Redirect(method = "channelActive", at = @At(value = "FIELD", target = "Lnet/minecraft/network/Connection;address:Ljava/net/SocketAddress;"))
-    private void dropSetAddress(Connection instance, SocketAddress value) {
+    private void dropQuicAddresses(Connection instance, SocketAddress value) {
+        if (!(value instanceof QuicStreamAddress)) {
+            address = value;
+        }
     }
 
     @Redirect(method = "disconnect", at = @At(value = "FIELD", target = "Lnet/minecraft/network/Connection;channel:Lio/netty/channel/Channel;"))

@@ -72,7 +72,7 @@ public class KeyedTokenHandler implements QuicTokenHandler {
         cleartext.writeBytes(dcid, dcid.readerIndex(), dcid.readableBytes());
 
         var hash = this.hash.fork();
-        hash.update(cleartext.array());
+        hash.update(cleartext.array(), cleartext.arrayOffset() + cleartext.readerIndex(), cleartext.readableBytes());
         cleartext.release();
 
         return hash.digest(HASH_LENGTH);
