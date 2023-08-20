@@ -1,18 +1,20 @@
 package me.ramidzkh.qc.client;
 
+import net.minecraft.client.multiplayer.resolver.ServerAddress;
+
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 public class QuicSocketAddress extends InetSocketAddress {
 
-    private final QuicTier quicTier;
+    private final ServerAddress origin;
 
-    public QuicSocketAddress(InetAddress addr, int port, QuicTier tier) {
+    public QuicSocketAddress(InetAddress addr, int port, ServerAddress origin) {
         super(addr, port);
-        quicTier = tier;
+        this.origin = origin;
     }
 
-    public QuicTier getQuicTier() {
-        return quicTier;
+    public ServerAddress getOrigin() {
+        return origin;
     }
 }

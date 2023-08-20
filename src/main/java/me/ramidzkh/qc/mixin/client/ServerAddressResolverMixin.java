@@ -1,7 +1,6 @@
 package me.ramidzkh.qc.mixin.client;
 
 import me.ramidzkh.qc.client.QuicSocketAddress;
-import me.ramidzkh.qc.client.ServerAddressProperties;
 import net.minecraft.client.multiplayer.resolver.ResolvedServerAddress;
 import net.minecraft.client.multiplayer.resolver.ServerAddress;
 import net.minecraft.client.multiplayer.resolver.ServerAddressResolver;
@@ -19,7 +18,7 @@ public interface ServerAddressResolverMixin {
     private static void capture(ServerAddress serverAddress,
             CallbackInfoReturnable<Optional<ResolvedServerAddress>> callbackInfoReturnable) {
         callbackInfoReturnable.setReturnValue(callbackInfoReturnable.getReturnValue()
-                .map(x -> ResolvedServerAddress.from(new QuicSocketAddress(x.asInetSocketAddress().getAddress(),
-                        x.getPort(), ((ServerAddressProperties) (Object) serverAddress).getQuicTier()))));
+                .map(x -> ResolvedServerAddress.from(
+                        new QuicSocketAddress(x.asInetSocketAddress().getAddress(), x.getPort(), serverAddress))));
     }
 }

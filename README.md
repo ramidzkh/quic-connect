@@ -26,7 +26,7 @@ An X.509 certificate chain file in PEM format is required in `config/quic-connec
 
 To generate self-signed certificates using OpenSSL:
 
-1. `openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:prime256v1 -out key.pem`
+1. `openssl genpkey -algorithm ec -pkeyopt ec_paramgen_curve:prime256v1 -out key.pem`
 2. `openssl req -key key.pem -new -x509 -days 365 -out certificate.pem`
 
 ## License
