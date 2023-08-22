@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.nio.file.Files;
 import java.security.SecureRandom;
 import java.util.List;
 import java.util.WeakHashMap;
@@ -43,15 +44,19 @@ public class QuicServerConnectionListener {
         var config = FabricLoader.getInstance().getConfigDir().resolve("quic-connect");
         var keyFile = config.resolve("key.pem");
         var certificateFile = config.resolve("certificate.pem");
+        var caCertificateFile = config.resolve("ca_certificate.pem");
 
         var context = QuicSslContextBuilder.forServer(keyFile.toFile(), null, certificateFile.toFile())
-                .applicationProtocols(QuicConnect.APPLICATION_NAME)
-                .build();
+                .applicationProtocols(QuicConnect.APPLICATION_NAME);
+
+        if (Files.exists(caCertificateFile)) {
+            context.trustManager(caCertificateFile.toFile());
+        }
 
         var inheritAddresses = new WeakHashMap<Channel, SocketAddress>();
 
         var codec = new QuicServerCodecBuilder()
-                .sslContext(context)
+                .sslContext(context.build())
                 .maxIdleTimeout(QuicConnect.IDLE_TIMEOUT_SECONDS, TimeUnit.SECONDS)
                 // Configure some limits for the maximal number of streams (and the data) that we want to handle.
                 .initialMaxData(10000000)

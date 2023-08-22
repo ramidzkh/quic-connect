@@ -6,9 +6,11 @@
   "mixins": [
     "ConnectionAccessor",
     "ConnectionMixin",
+    "server.CommandsMixin",
     "server.DedicatedServerMixin",
     "server.DedicatedServerPropertiesMixin",
-    "server.ServerConnectionListenerAccessor"
+    "server.ServerConnectionListenerAccessor",
+    "server.ServerLoginPacketListenerImplMixin"
   ],
   "client": [
     "client.ServerAddressMixin",

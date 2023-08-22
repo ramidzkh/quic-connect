@@ -12,11 +12,13 @@ import io.netty.incubator.codec.quic.QuicSslContextBuilder;
 import io.netty.incubator.codec.quic.QuicStreamType;
 import me.ramidzkh.qc.QuicConnect;
 import me.ramidzkh.qc.mixin.ConnectionAccessor;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.PacketFlow;
 import org.jetbrains.annotations.NotNull;
 
 import java.net.InetSocketAddress;
+import java.nio.file.Files;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -26,13 +28,20 @@ public class QuicConnection {
             throws ExecutionException, InterruptedException {
         useNativeTransport &= false && Epoll.isAvailable();
 
+        var config = FabricLoader.getInstance().getConfigDir().resolve("quic-connect");
+        var clientCertificate = config.resolve("client_certificate.pem");
+        var clientKey = config.resolve("client_key.pem");
+
         var context = QuicSslContextBuilder.forClient()
                 .trustManager(InsecureTrustManagerFactory.INSTANCE)
-                .applicationProtocols(QuicConnect.APPLICATION_NAME)
-                .build();
+                .applicationProtocols(QuicConnect.APPLICATION_NAME);
+
+        if (Files.exists(clientCertificate) || Files.exists(clientKey)) { // Fail if either one is missing
+            context.keyManager(clientKey.toFile(), null, clientCertificate.toFile());
+        }
 
         var codec = new QuicClientCodecBuilder()
-                .sslContext(context)
+                .sslContext(context.build())
                 .maxIdleTimeout(QuicConnect.IDLE_TIMEOUT_SECONDS, TimeUnit.SECONDS)
                 .initialMaxData(10000000)
                 // As we don't want to support remote initiated streams just setup the limit for local initiated streams
