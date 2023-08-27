@@ -9,6 +9,7 @@ import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.incubator.codec.quic.QuicConnectionEvent;
 import io.netty.incubator.codec.quic.QuicServerCodecBuilder;
 import io.netty.incubator.codec.quic.QuicSslContextBuilder;
+import io.netty.incubator.codec.quic.QuicStreamChannel;
 import me.ramidzkh.qc.QuicConnect;
 import me.ramidzkh.qc.mixin.ConnectionAccessor;
 import me.ramidzkh.qc.token.KeyedConnectionIdGenerator;
@@ -79,6 +80,7 @@ public class QuicServerConnectionListener {
                                 var accessor = (ConnectionAccessor) connection;
 
                                 if (!newAddress.equals(currentAddress)
+                                        && accessor.getChannel() instanceof QuicStreamChannel
                                         && accessor.getChannel().parent() == ctx.channel()) {
                                     accessor.setAddress(newAddress);
                                     LOGGER.info("{}[{}] was migrated to {}", connection, currentAddress, newAddress);

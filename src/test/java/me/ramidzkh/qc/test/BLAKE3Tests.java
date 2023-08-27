@@ -75,8 +75,10 @@ public class BLAKE3Tests {
 
         var root = BLAKE3.newKeyedHasher(bytes);
 
-        random.nextBytes(bytes);
-        root.update(bytes);
+        for (int i = 0; i < 33; i++) {
+            random.nextBytes(bytes);
+            root.update(bytes);
+        }
 
         var a = root.fork();
         var b = root.fork();
@@ -98,6 +100,11 @@ public class BLAKE3Tests {
 
         Assertions.assertArrayEquals(aDigest, bDigest);
         Assertions.assertArrayEquals(aDigest, rootDigest);
+    }
+
+    @Test
+    public void exceptions() {
+        assertThrows(IllegalStateException.class, () -> BLAKE3.newKeyedHasher(new byte[64]));
     }
 
     public byte[] getTestVectorInput(int inputLen) {

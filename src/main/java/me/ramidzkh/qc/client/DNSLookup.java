@@ -3,11 +3,13 @@ package me.ramidzkh.qc.client;
 import com.mojang.logging.LogUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.SharedConstants;
 import net.minecraft.client.multiplayer.resolver.ServerAddress;
 import net.minecraft.client.multiplayer.resolver.ServerRedirectHandler;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
+import javax.naming.Context;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import java.util.Hashtable;
@@ -28,7 +30,7 @@ public class DNSLookup implements ServerRedirectHandler {
 
     @Override
     public @NotNull Optional<ServerAddress> lookupRedirect(ServerAddress address) {
-        if (address.getPort() == 25565) {
+        if (address.getPort() == SharedConstants.DEFAULT_MINECRAFT_PORT) {
             try {
                 var attributes = context.getAttributes("_quic_connect._udp." + address.getHost(),
                         new String[] { "SRV" });
@@ -53,9 +55,9 @@ public class DNSLookup implements ServerRedirectHandler {
             var factory = "com.sun.jndi.dns.DnsContextFactory";
             Class.forName(factory);
             var hashtable = new Hashtable<String, String>();
-            hashtable.put("java.naming.factory.initial", factory);
-            hashtable.put("java.naming.provider.url", "dns:");
-            hashtable.put("com.sun.jndi.dns.timeout.retries", "1");
+            hashtable.put(Context.INITIAL_CONTEXT_FACTORY, factory);
+            hashtable.put(Context.PROVIDER_URL, "dns:");
+            hashtable.put("com.sun.jndi.dns.timeout.retries", "1"); // DnsContext.RETRIES
             return new DNSLookup(new InitialDirContext(hashtable));
         } catch (Throwable throwable) {
             LOGGER.error("Failed to initialize Quic SRV redirect resolver, some servers might not work", throwable);

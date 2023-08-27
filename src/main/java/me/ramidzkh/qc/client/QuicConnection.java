@@ -58,13 +58,7 @@ public class QuicConnection {
                 .channel();
 
         return QuicChannel.newBootstrap(channel)
-                .streamHandler(new ChannelInboundHandlerAdapter() {
-                    @Override
-                    public void channelActive(@NotNull ChannelHandlerContext ctx) {
-                        // As we did not allow any remote initiated streams we will never see this method called.
-                        ctx.close();
-                    }
-                })
+                .streamHandler(new ChannelInboundHandlerAdapter())
                 .remoteAddress(address)
                 .connect()
                 .get()
