@@ -20,13 +20,10 @@ public class ServerNameResolverMixin {
 
     @Redirect(method = "resolveAddress", at = @At(value = "FIELD", target = "Lnet/minecraft/client/multiplayer/resolver/ServerNameResolver;redirectHandler:Lnet/minecraft/client/multiplayer/resolver/ServerRedirectHandler;"))
     private ServerRedirectHandler getRedirectHandler(ServerNameResolver self, ServerAddress serverAddress) {
-        return switch (((ServerAddressProperties) (Object) serverAddress).getQuicTier()) {
-            case QUIC_ONLY -> DNSLookup.INSTANCE;
-            case QUIC_PREFERRED -> a -> DNSLookup.INSTANCE.lookupRedirect(a)
-                    .or(() -> redirectHandler.lookupRedirect(a));
-            case QUIC_AFTER -> a -> redirectHandler.lookupRedirect(a)
-                    .or(() -> DNSLookup.INSTANCE.lookupRedirect(a));
-            case VANILLA -> redirectHandler;
-        };
+        if (((ServerAddressProperties) (Object) serverAddress).getUseQuic()) {
+            return DNSLookup.INSTANCE;
+        } else {
+            return redirectHandler;
+        }
     }
 }

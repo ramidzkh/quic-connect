@@ -2,7 +2,11 @@ package me.ramidzkh.qc.client;
 
 public interface ServerAddressProperties {
 
-    QuicTier getQuicTier();
+    boolean getUseQuic();
 
-    void setQuicTier(QuicTier tier);
+    void setUseQuic(boolean quic);
+
+    default void copy(ServerAddressProperties other) {
+        setUseQuic(other.getUseQuic());
+    }
 }

@@ -39,8 +39,7 @@ public class DNSLookup implements ServerRedirectHandler {
                 if (attribute != null) {
                     var strings = attribute.get().toString().split(" ", 4);
                     var newAddress = new ServerAddress(strings[3], Integer.parseInt(strings[2]));
-                    ((ServerAddressProperties) (Object) newAddress)
-                            .setQuicTier(((ServerAddressProperties) (Object) address).getQuicTier());
+                    ((ServerAddressProperties) (Object) newAddress).copy((ServerAddressProperties) (Object) address);
                     return Optional.of(newAddress);
                 }
             } catch (Throwable ignored) {

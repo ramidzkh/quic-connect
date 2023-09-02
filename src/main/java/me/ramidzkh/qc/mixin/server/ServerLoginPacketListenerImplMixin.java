@@ -2,6 +2,7 @@ package me.ramidzkh.qc.mixin.server;
 
 import com.mojang.authlib.GameProfile;
 import io.netty.incubator.codec.quic.QuicChannel;
+import me.ramidzkh.qc.QuicConnect;
 import me.ramidzkh.qc.server.GameProfileCodec;
 import me.ramidzkh.qc.mixin.ConnectionAccessor;
 import net.minecraft.network.Connection;
@@ -44,13 +45,14 @@ public class ServerLoginPacketListenerImplMixin {
                     var extension = x509.getExtensionValue(GameProfileCodec.OID);
                     var profile = GameProfileCodec.read(ByteBuffer.wrap(extension));
 
-                    if (profile.getId().equals(packet.profileId().orElse(null))
-                            && profile.getName().equals(packet.name())) {
+                    if (QuicConnect.ALLOW_UNMATCHED_PROFILE ||
+                            (profile.getId().equals(packet.profileId().orElse(null))
+                                    && profile.getName().equals(packet.name()))) {
                         this.gameProfile = profile;
                         return false;
                     }
                 }
-            } catch (Exception e) {
+            } catch (Exception ignored) {
                 LOGGER.trace("{} did not have a valid Minecraft profile association", channel);
             }
         }

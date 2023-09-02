@@ -6,7 +6,6 @@ import io.netty.incubator.codec.quic.QuicStreamAddress;
 import io.netty.incubator.codec.quic.QuicStreamChannel;
 import me.ramidzkh.qc.client.QuicConnection;
 import me.ramidzkh.qc.client.QuicSocketAddress;
-import me.ramidzkh.qc.client.QuicTier;
 import me.ramidzkh.qc.client.ServerAddressProperties;
 import net.minecraft.network.Connection;
 import org.spongepowered.asm.mixin.Mixin;
@@ -38,8 +37,7 @@ public class ConnectionMixin {
             CallbackInfoReturnable<ChannelFuture> callbackInfoReturnable)
             throws ExecutionException, InterruptedException {
         if (address instanceof QuicSocketAddress quicAddress) {
-            // TODO: QUIC_PREFERRED, QUIC_AFTER failover behaviour
-            if (((ServerAddressProperties) (Object) quicAddress.getOrigin()).getQuicTier() == QuicTier.QUIC_ONLY) {
+            if (((ServerAddressProperties) (Object) quicAddress.getOrigin()).getUseQuic()) {
                 callbackInfoReturnable.setReturnValue(QuicConnection.connect(address, useNativeTransport, connection));
             }
         }

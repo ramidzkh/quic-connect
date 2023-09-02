@@ -1,6 +1,5 @@
 package me.ramidzkh.qc.mixin.client;
 
-import me.ramidzkh.qc.client.QuicTier;
 import me.ramidzkh.qc.client.ServerAddressProperties;
 import net.minecraft.client.multiplayer.resolver.ServerAddress;
 import org.spongepowered.asm.mixin.Final;
@@ -20,7 +19,7 @@ public class ServerAddressMixin implements ServerAddressProperties {
     private static ServerAddress INVALID;
 
     @Unique
-    private QuicTier quicTier = QuicTier.QUIC_PREFERRED;
+    private boolean quic;
 
     @Inject(method = "parseString", at = @At("HEAD"), cancellable = true)
     private static void parse(String address, CallbackInfoReturnable<ServerAddress> callbackInfoReturnable) {
@@ -35,14 +34,11 @@ public class ServerAddressMixin implements ServerAddressProperties {
 
         if (newAddress != INVALID) {
             switch (scheme) {
-                case "minecraft":
-                    ((ServerAddressProperties) (Object) newAddress).setQuicTier(QuicTier.VANILLA);
-                    break;
-                case "quic":
-                    ((ServerAddressProperties) (Object) newAddress).setQuicTier(QuicTier.QUIC_ONLY);
-                default:
+                case "minecraft" -> ((ServerAddressProperties) (Object) newAddress).setUseQuic(false);
+                case "quic" -> ((ServerAddressProperties) (Object) newAddress).setUseQuic(true);
+                default -> {
                     // TODO: API?
-                    break;
+                }
             }
         }
 
@@ -61,12 +57,12 @@ public class ServerAddressMixin implements ServerAddressProperties {
     }
 
     @Override
-    public QuicTier getQuicTier() {
-        return quicTier;
+    public boolean getUseQuic() {
+        return quic;
     }
 
     @Override
-    public void setQuicTier(QuicTier quicTier) {
-        this.quicTier = quicTier;
+    public void setUseQuic(boolean quic) {
+        this.quic = quic;
     }
 }

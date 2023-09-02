@@ -40,7 +40,7 @@ public class QuicServerConnectionListener {
 
     public static void startQuicServerListener(MinecraftServer server, List<ChannelFuture> channels,
             List<Connection> connections, @Nullable InetAddress address, int port) {
-        var useNativeTransport = false && Epoll.isAvailable() && server.isEpollEnabled();
+        var useNativeTransport = QuicConnect.ENABLE_NATIVE_TRANSPORT && Epoll.isAvailable() && server.isEpollEnabled();
 
         var config = FabricLoader.getInstance().getConfigDir().resolve("quic-connect");
         var keyFile = config.resolve("key.pem");

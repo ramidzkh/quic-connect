@@ -26,7 +26,7 @@ public class QuicConnection {
 
     public static ChannelFuture connect(InetSocketAddress address, boolean useNativeTransport, Connection connection)
             throws ExecutionException, InterruptedException {
-        useNativeTransport &= false && Epoll.isAvailable();
+        useNativeTransport &= QuicConnect.ENABLE_NATIVE_TRANSPORT && Epoll.isAvailable();
 
         var config = FabricLoader.getInstance().getConfigDir().resolve("quic-connect");
         var clientCertificate = config.resolve("client_certificate.pem");
