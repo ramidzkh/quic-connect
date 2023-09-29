@@ -13,13 +13,13 @@ dependencies {
     mappings(loom.officialMojangMappings())
     modImplementation("net.fabricmc:fabric-loader:${loader_version}")
 
-    include(implementation("io.netty.incubator:netty-incubator-codec-classes-quic:0.0.49.Final"))
+    include(implementation("io.netty.incubator:netty-incubator-codec-classes-quic:0.0.50.Final"))
 
     for (def classifier : ["linux-aarch_64", "linux-x86_64", "osx-aarch_64", "osx-x86_64", "windows-x86_64"]) {
-        include("io.netty.incubator:netty-incubator-codec-native-quic:0.0.49.Final:${classifier}")
+        include("io.netty.incubator:netty-incubator-codec-native-quic:0.0.50.Final:${classifier}")
     }
 
-    runtimeOnly("io.netty.incubator:netty-incubator-codec-native-quic:0.0.49.Final:linux-x86_64")
+    runtimeOnly("io.netty.incubator:netty-incubator-codec-native-quic:0.0.50.Final:linux-x86_64")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.0")

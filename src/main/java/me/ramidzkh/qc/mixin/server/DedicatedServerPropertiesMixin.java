@@ -18,6 +18,9 @@ public abstract class DedicatedServerPropertiesMixin extends Settings<DedicatedS
     @Unique
     private int quicPort;
 
+    @Unique
+    private boolean quicForceClientAuthentication;
+
     public DedicatedServerPropertiesMixin(Properties properties) {
         super(properties);
     }
@@ -27,8 +30,14 @@ public abstract class DedicatedServerPropertiesMixin extends Settings<DedicatedS
         return quicPort;
     }
 
+    @Override
+    public boolean isForceClientAuthentication() {
+        return quicForceClientAuthentication;
+    }
+
     @Inject(method = "<init>", at = @At("TAIL"))
     private void initUri(CallbackInfo callbackInfo) {
         quicPort = get("quic-port", -1);
+        quicForceClientAuthentication = get("quic-force-client-authentication", false);
     }
 }

@@ -12,7 +12,7 @@ The mod follows this order when resolving:
 
 1. If the hostname starts with `mincraft://`, do NOT use QUIC
 2. If the hostname starts with `quic://`, use ONLY use QUIC
-3. If the hostname has `_quic_connect._udp.` SRV record, follow if QUIC is preferred or forced
+    1. If the hostname has `_quic_connect._udp.` SRV record, follow
 
 ### For servers owners
 
@@ -28,6 +28,21 @@ To generate self-signed certificates using OpenSSL:
 
 1. `openssl genpkey -algorithm ec -pkeyopt ec_paramgen_curve:prime256v1 -out key.pem`
 2. `openssl req -key key.pem -new -x509 -days 365 -out certificate.pem`
+
+## PKI
+
+Client certificates can be used to bypass Mojang's authentication servers, for example if you want to join a server even
+when authentication is down. Simply add an extension with the `1.3.6.1.4.1.9999999.1.1` OID, with the data provided
+by `/quic-connect dump-profile <player name>`.
+
+For servers, place:
+
+* `config/quic-connect/ca_certificate.pem`
+
+For clients, place:
+
+* `config/quic-connect/client_certificate.pem`
+* `config/quic-connect/client_key.pem`
 
 ## License
 

@@ -6,6 +6,7 @@ import io.netty.channel.*;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollDatagramChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
+import io.netty.handler.ssl.ClientAuth;
 import io.netty.incubator.codec.quic.QuicConnectionEvent;
 import io.netty.incubator.codec.quic.QuicServerCodecBuilder;
 import io.netty.incubator.codec.quic.QuicSslContextBuilder;
@@ -39,7 +40,7 @@ public class QuicServerConnectionListener {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public static void startQuicServerListener(MinecraftServer server, List<ChannelFuture> channels,
-            List<Connection> connections, @Nullable InetAddress address, int port) {
+            List<Connection> connections, @Nullable InetAddress address, ExtraServerProperties properties) {
         var useNativeTransport = QuicConnect.ENABLE_NATIVE_TRANSPORT && Epoll.isAvailable() && server.isEpollEnabled();
 
         var config = FabricLoader.getInstance().getConfigDir().resolve("quic-connect");
@@ -53,6 +54,8 @@ public class QuicServerConnectionListener {
         if (Files.exists(caCertificateFile)) {
             context.trustManager(caCertificateFile.toFile());
         }
+
+        context.clientAuth(properties.isForceClientAuthentication() ? ClientAuth.REQUIRE : ClientAuth.OPTIONAL);
 
         var inheritAddresses = new WeakHashMap<Channel, SocketAddress>();
 
@@ -129,7 +132,7 @@ public class QuicServerConnectionListener {
                         : Connection.NETWORK_WORKER_GROUP.get())
                 .channel(useNativeTransport ? EpollDatagramChannel.class : NioDatagramChannel.class)
                 .handler(codec)
-                .bind(new InetSocketAddress(address, port))
+                .bind(new InetSocketAddress(address, properties.getQuicPort()))
                 .syncUninterruptibly());
     }
 }
